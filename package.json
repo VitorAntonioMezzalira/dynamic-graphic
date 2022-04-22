@@ -1,0 +1,19 @@
+{
+  "name": "run-stats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "start ./templates/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VitorAntonioMezzalira/dynamic-graphic.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VitorAntonioMezzalira/dynamic-graphic/issues"
+  },
+  "homepage": "https://github.com/VitorAntonioMezzalira/dynamic-graphic#readme"
+}

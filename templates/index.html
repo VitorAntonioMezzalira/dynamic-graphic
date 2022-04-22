@@ -11,8 +11,8 @@
 <body>
 
   <form id="form">
-    <label for="day">Dia: </label>
-    <input id="day" type="date">
+    <label for="date">Dia: </label>
+    <input id="date" type="date">
 
     <label for="duration">Duração: </label>
     <input id="duration" type="number">
@@ -26,11 +26,19 @@
       <option value="lines">Linhas</option>
     </select>
 
+    <label for="data-name">Dado a ser exibido: </label>
+    <select id="data-name">
+      <option value="duration">Duração</option>
+      <option value="distance">Distância</option>
+    </select>
+
     <button>Salvar</button>
 
   </form>
 
-  <canvas id="canvas" width="300" height="300"></canvas>
+  <div id="canvas-container">
+    <canvas id="canvas" width="300" height="300"></canvas>
+  </div>
 
   <script>
 
@@ -38,15 +46,16 @@
     // CRIAÇÃO E MANIBULAÇÃO DO GRÁFICO
     //=======================================================================================
 
-    const canvasWidth = 500;
+    const canvasWidth =  750; // document.getElementById('canvas-container').clientWidth * 0.5;
     const canvasHeight = 300;
 
     const canvasTopPadding = 20;
-    const canvasBottomPadding = 50;
+    const canvasBottomPadding = 40;
     const canvasLeftPadding = 40;
     const canvasRightPadding = 20;
 
-    const canvasGraphicHeight = canvasHeight - canvasTopPadding - canvasBottomPadding;
+    const graphicWidth = canvasWidth - (canvasLeftPadding + canvasRightPadding);
+    const graphicHeight = canvasHeight - (canvasBottomPadding + canvasTopPadding);
 
     const canvas = document.getElementById('canvas');
     const canvasContext = canvas.getContext('2d');
@@ -62,10 +71,41 @@
 
     function drawGraphicBorders() {
       canvasContext.beginPath();
-      canvasContext.moveTo(canvasLeftPadding, canvasTopPadding);
-      canvasContext.lineTo(canvasLeftPadding, canvasHeight - canvasBottomPadding);
-      canvasContext.lineTo(canvasWidth - canvasRightPadding, canvasHeight - canvasBottomPadding);
+      canvasContext.moveTo(
+        canvasLeftPadding, 
+        canvasTopPadding
+      );
+      canvasContext.lineTo(
+        canvasLeftPadding, 
+        canvasHeight - canvasBottomPadding
+      );
+      canvasContext.lineTo(
+        canvasLeftPadding + graphicWidth, 
+        canvasTopPadding + graphicHeight
+      );
       canvasContext.stroke();
+    };
+
+    function drawHorizontalLines(lineWidth) {
+
+      // desenha as linhas pontilhadas
+      for (let i = lineWidth; i < graphicWidth; i += (lineWidth * 2)) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(
+          canvasLeftPadding + i, 
+          canvasHeight - canvasBottomPadding - 50
+        );
+        canvasContext.lineTo(
+          canvasLeftPadding + i + lineWidth, 
+          canvasHeight - canvasBottomPadding - 50
+        );
+        canvasContext.stroke(); 
+      }
+
+      // esconde pedaços das linhas que tenham passado a largura do gráfico
+      canvasContext.fillStyle = '#eeeeee';
+      canvasContext.fillRect(canvasLeftPadding + graphicWidth, 0, canvasWidth, canvasHeight);
+
     }
 
     function drawGraphicBar(width, height, distanceBetween) {
@@ -81,6 +121,12 @@
       canvasContext.lineTo(barLeftStart, barTopStart);
     };
 
+    function drawGraphicInfoText(text, x, y) {
+      canvasContext.font = '12px Arial';
+      canvasContext.fillStyle = '#111111'
+      canvasContext.fillText(text, x, y);
+    }
+
     // definições da largura, espaçamento e altura das barras
     var distanceBetween;
     var width;
@@ -89,19 +135,19 @@
     function calculateGraphic() {
       //=======================================================================================
       // cálculo da distância entre uma barra e outra
-      distanceBetween = (canvasWidth - canvasLeftPadding - canvasRightPadding) / data.length;
+      distanceBetween = graphicWidth / data.length;
 
       // cálculo da largura das barras
-      width = ((canvasWidth - canvasLeftPadding - canvasRightPadding) / data.length) / 2;
+      width = (graphicWidth / data.length) / 2;
 
       // cálculo do multiplicador de altura das barras
       let maxBarHeight = 0;
       data.forEach((training) => {
-        if (training.duration > maxBarHeight) {
-          maxBarHeight = training.duration;
+        if (training[dataName] > maxBarHeight) {
+          maxBarHeight = training[dataName];
         };
       });
-      heightMultiplier = 100 / ((100 * maxBarHeight) / canvasGraphicHeight);
+      heightMultiplier = 100 / ((100 * maxBarHeight) / graphicHeight);
     }
 
     //=======================================================================================
@@ -110,9 +156,16 @@
 
     var data = [];
     var graphicType = 'bars'
+    var dataName = 'duration'
 
     document.getElementById('graphic-type').addEventListener('change', () => {
       graphicType = document.getElementById('graphic-type').value;
+      buildCanvas();
+    })
+
+    document.getElementById('data-name').addEventListener('change', () => {
+      dataName = document.getElementById('data-name').value;
+      calculateGraphic();
       buildCanvas();
     })
 
@@ -122,12 +175,12 @@
       buildCanvas();
       document.getElementById('duration').value = '';
       document.getElementById('distance').value = '';
-      document.getElementById('day').value = '';
+      document.getElementById('date').value = '';
     })
 
     function addData() {
       data.push({
-        day: document.getElementById('day').value,
+        date: document.getElementById('date').value,
         duration: parseInt(document.getElementById('duration').value),
         distance: parseInt(document.getElementById('distance').value)
       });
@@ -144,24 +197,50 @@
       drawCanvas();
 
       // calcula parâmetros para exibição dos indices no gráfico
-      calculateGraphic()
+      calculateGraphic();
+
+      drawHorizontalLines(10);
 
       if (data.length > 0) {
+
         if (graphicType == 'bars') {
           // barras do gráfico
           data.forEach((training, id) => {
-            drawGraphicBar(width, training.duration * heightMultiplier, distanceBetween * id);
+            drawGraphicBar(
+              width, 
+              training[dataName] * heightMultiplier, 
+              distanceBetween * id
+            );
+            // Desenha informações dos índices do gráfico
+            drawGraphicInfoText(
+              training.date,
+              canvasLeftPadding + (distanceBetween * id) + width,
+              canvasHeight - canvasBottomPadding + 20
+            );
           });
+          
         } else if (graphicType == 'lines') {
+
           // Linhas do gráfico
           canvasContext.beginPath();
           canvasContext.moveTo(
             canvasLeftPadding + (distanceBetween * 0) + width,
             canvasHeight - canvasBottomPadding - (data[0].duration * heightMultiplier));
           data.forEach((training, id) => {
-            drawGraphicLines(width, training.duration * heightMultiplier, distanceBetween * id);
+            drawGraphicLines(
+              width, 
+              training[dataName] * heightMultiplier, 
+              distanceBetween * id
+            );
+            // Desenha informações dos índices do gráfico
+            drawGraphicInfoText(
+              training.date,
+              canvasLeftPadding + (distanceBetween * id) + width,
+              canvasHeight - canvasBottomPadding + 20
+            );
           });
           canvasContext.stroke();
+
         };
 
       };
