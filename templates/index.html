@@ -86,18 +86,18 @@
       canvasContext.stroke();
     };
 
-    function drawHorizontalLines(lineWidth) {
+    function drawHorizontalLines(lineWidth, a) {
 
       // desenha as linhas pontilhadas
       for (let i = lineWidth; i < graphicWidth; i += (lineWidth * 2)) {
         canvasContext.beginPath();
         canvasContext.moveTo(
           canvasLeftPadding + i, 
-          canvasHeight - canvasBottomPadding - 50
+          canvasHeight - canvasBottomPadding - a
         );
         canvasContext.lineTo(
           canvasLeftPadding + i + lineWidth, 
-          canvasHeight - canvasBottomPadding - 50
+          canvasHeight - canvasBottomPadding - a
         );
         canvasContext.stroke(); 
       }
@@ -173,6 +173,16 @@
       e.preventDefault();
       addData();
       buildCanvas();
+
+      let date =  (document.getElementById('date').value).split('-');
+      date = new Date(date[0], date[1], date[2]);
+
+      createTraining({
+        date: date,
+        duration: parseInt(document.getElementById('duration').value),
+        distance: parseInt(document.getElementById('distance').value)
+      });
+     
       document.getElementById('duration').value = '';
       document.getElementById('distance').value = '';
       document.getElementById('date').value = '';
@@ -199,7 +209,10 @@
       // calcula parâmetros para exibição dos indices no gráfico
       calculateGraphic();
 
-      drawHorizontalLines(10);
+      drawHorizontalLines(10, 50);
+      drawHorizontalLines(10, 100);
+      drawHorizontalLines(10, 150);
+      drawHorizontalLines(10, 200);
 
       if (data.length > 0) {
 
@@ -251,6 +264,24 @@
     };
 
     buildCanvas();
+
+    //===========================================================================
+    // CHAMADAS NA API
+    //===========================================================================
+
+    async function createTraining(training) {
+
+      const response = await fetch('http://localhost:5000/training/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify(training)
+      });
+
+      console.log(response);
+
+    };
 
   </script>
 
