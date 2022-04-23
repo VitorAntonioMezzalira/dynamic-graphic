@@ -24,12 +24,22 @@ app.post('/training/create', async (req, res) => {
 
 });
 
-app.get('/training/fetch-all', async (req, res) => {
+app.get('/training/all', async (req, res) => {
 
     const trainings = await Training.find({});
     res.send(trainings).status(200);
 
 })
+
+
+app.delete('/training/delete/:_id', async (req, res) => {
+
+  console.log(req.params)
+
+  const response = await Training.findByIdAndDelete({ _id: req.params._id });
+  res.send(response).status(200);
+
+});
 
 Connection('mongodb://localhost:27017/run-stats');
 app.listen(5000, () => console.log('server is running at http://localhost:5000'))

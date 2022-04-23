@@ -11,6 +11,10 @@
 <body>
 
   <form id="form">
+
+    <label for="_id">Código </label>
+    <input disabled id="_id" type="text">
+
     <label for="date">Dia: </label>
     <input id="date" type="date">
 
@@ -40,234 +44,72 @@
     <canvas id="canvas" width="300" height="300"></canvas>
   </div>
 
+  <div id="table-container">
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Duração</th><th>Distância</th></tr>
+      </thead>
+      <tbody id="table">
+      </tbody>
+    </table>
+  </div>
+
+  <script src="./utils/dateConversions.js"></script>
+  <script src="./utils/canvas.js"></script>
+  <script src="./utils/table.js"></script>
   <script>
 
-    //=======================================================================================
-    // CRIAÇÃO E MANIBULAÇÃO DO GRÁFICO
-    //=======================================================================================
-
-    const canvasWidth =  750; // document.getElementById('canvas-container').clientWidth * 0.5;
-    const canvasHeight = 300;
-
-    const canvasTopPadding = 20;
-    const canvasBottomPadding = 40;
-    const canvasLeftPadding = 40;
-    const canvasRightPadding = 20;
-
-    const graphicWidth = canvasWidth - (canvasLeftPadding + canvasRightPadding);
-    const graphicHeight = canvasHeight - (canvasBottomPadding + canvasTopPadding);
-
-    const canvas = document.getElementById('canvas');
-    const canvasContext = canvas.getContext('2d');
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-
-    // funções para desenho do gráfico
-    function drawCanvas() {
-      canvasContext.fillStyle = '#eeeeee';
-      canvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
-    };
-
-    function drawGraphicBorders() {
-      canvasContext.beginPath();
-      canvasContext.moveTo(
-        canvasLeftPadding, 
-        canvasTopPadding
-      );
-      canvasContext.lineTo(
-        canvasLeftPadding, 
-        canvasHeight - canvasBottomPadding
-      );
-      canvasContext.lineTo(
-        canvasLeftPadding + graphicWidth, 
-        canvasTopPadding + graphicHeight
-      );
-      canvasContext.stroke();
-    };
-
-    function drawHorizontalLines(lineWidth, a) {
-
-      // desenha as linhas pontilhadas
-      for (let i = lineWidth; i < graphicWidth; i += (lineWidth * 2)) {
-        canvasContext.beginPath();
-        canvasContext.moveTo(
-          canvasLeftPadding + i, 
-          canvasHeight - canvasBottomPadding - a
-        );
-        canvasContext.lineTo(
-          canvasLeftPadding + i + lineWidth, 
-          canvasHeight - canvasBottomPadding - a
-        );
-        canvasContext.stroke(); 
-      }
-
-      // esconde pedaços das linhas que tenham passado a largura do gráfico
-      canvasContext.fillStyle = '#eeeeee';
-      canvasContext.fillRect(canvasLeftPadding + graphicWidth, 0, canvasWidth, canvasHeight);
-
-    }
-
-    function drawGraphicBar(width, height, distanceBetween) {
-      let barTopStart = canvasHeight - canvasBottomPadding - height;
-      let barLeftStart = canvasLeftPadding + distanceBetween + (width / 2);
-      canvasContext.fillStyle = '#66dd66';
-      canvasContext.fillRect(barLeftStart, barTopStart, width, height);
-    };
-
-    function drawGraphicLines(width, height, distanceBetween) {
-      let barTopStart = canvasHeight - canvasBottomPadding - height;
-      let barLeftStart = canvasLeftPadding + distanceBetween + width;
-      canvasContext.lineTo(barLeftStart, barTopStart);
-    };
-
-    function drawGraphicInfoText(text, x, y) {
-      canvasContext.font = '12px Arial';
-      canvasContext.fillStyle = '#111111'
-      canvasContext.fillText(text, x, y);
-    }
-
-    // definições da largura, espaçamento e altura das barras
-    var distanceBetween;
-    var width;
-    var heightMultiplier;
-
-    function calculateGraphic() {
-      //=======================================================================================
-      // cálculo da distância entre uma barra e outra
-      distanceBetween = graphicWidth / data.length;
-
-      // cálculo da largura das barras
-      width = (graphicWidth / data.length) / 2;
-
-      // cálculo do multiplicador de altura das barras
-      let maxBarHeight = 0;
-      data.forEach((training) => {
-        if (training[dataName] > maxBarHeight) {
-          maxBarHeight = training[dataName];
-        };
-      });
-      heightMultiplier = 100 / ((100 * maxBarHeight) / graphicHeight);
-    }
-
-    //=======================================================================================
-    // MANIPULAÇÃO DE DADOS
-    //=======================================================================================
-
-    var data = [];
+    var trainings = [];
     var graphicType = 'bars'
     var dataName = 'duration'
 
-    document.getElementById('graphic-type').addEventListener('change', () => {
-      graphicType = document.getElementById('graphic-type').value;
-      buildCanvas();
+    const graphicTypeSelect = document.getElementById('graphic-type');
+    const dataNameSelect = document.getElementById('data-name');
+    const form = document.getElementById('form');
+    const dateInput = document.getElementById('date');
+    const durationInput = document.getElementById('duration');
+    const distanceInput = document.getElementById('distance');
+
+    // events
+
+    graphicTypeSelect.addEventListener('change', () => {
+      graphicType = graphicTypeSelect.value;
+      buildCanvas(trainings);
     })
 
-    document.getElementById('data-name').addEventListener('change', () => {
-      dataName = document.getElementById('data-name').value;
-      calculateGraphic();
-      buildCanvas();
-    })
+    dataNameSelect.addEventListener('change', () => {
+      dataName = dataNameSelect.value;
+      buildCanvas(trainings);
+    });
 
-    document.getElementById('form').addEventListener('submit', (e) => {
+    form.addEventListener('submit', (e) => {
+
       e.preventDefault();
-      addData();
-      buildCanvas();
 
-      let date =  (document.getElementById('date').value).split('-');
-      date = new Date(date[0], date[1], date[2]);
+      if ((dateInput.value != '') && (durationInput.value != '') && (distanceInput.value != '')) {
 
-      createTraining({
-        date: date,
-        duration: parseInt(document.getElementById('duration').value),
-        distance: parseInt(document.getElementById('distance').value)
-      });
-     
-      document.getElementById('duration').value = '';
-      document.getElementById('distance').value = '';
-      document.getElementById('date').value = '';
-    })
+        refreshTrainings();
 
-    function addData() {
-      data.push({
-        date: document.getElementById('date').value,
-        duration: parseInt(document.getElementById('duration').value),
-        distance: parseInt(document.getElementById('distance').value)
-      });
+        let date =  (document.getElementById('date').value).split('-');
+        date = new Date(date[0], date[1], date[2]);
 
-    };
+        createTraining({
+          date: date,
+          duration: parseInt(durationInput.value),
+          distance: parseInt(distanceInput.value)
+        });
+      
+        durationInput.value = '';
+        distanceInput.value = '';
+        dateInput.value = '';
 
-    //=======================================================================================
-    // CONSTRUÇÃO DO CANVAS
-    //=======================================================================================
-
-    function buildCanvas() {
-
-      // fundo do canvas
-      drawCanvas();
-
-      // calcula parâmetros para exibição dos indices no gráfico
-      calculateGraphic();
-
-      drawHorizontalLines(10, 50);
-      drawHorizontalLines(10, 100);
-      drawHorizontalLines(10, 150);
-      drawHorizontalLines(10, 200);
-
-      if (data.length > 0) {
-
-        if (graphicType == 'bars') {
-          // barras do gráfico
-          data.forEach((training, id) => {
-            drawGraphicBar(
-              width, 
-              training[dataName] * heightMultiplier, 
-              distanceBetween * id
-            );
-            // Desenha informações dos índices do gráfico
-            drawGraphicInfoText(
-              training.date,
-              canvasLeftPadding + (distanceBetween * id) + width,
-              canvasHeight - canvasBottomPadding + 20
-            );
-          });
-          
-        } else if (graphicType == 'lines') {
-
-          // Linhas do gráfico
-          canvasContext.beginPath();
-          canvasContext.moveTo(
-            canvasLeftPadding + (distanceBetween * 0) + width,
-            canvasHeight - canvasBottomPadding - (data[0].duration * heightMultiplier));
-          data.forEach((training, id) => {
-            drawGraphicLines(
-              width, 
-              training[dataName] * heightMultiplier, 
-              distanceBetween * id
-            );
-            // Desenha informações dos índices do gráfico
-            drawGraphicInfoText(
-              training.date,
-              canvasLeftPadding + (distanceBetween * id) + width,
-              canvasHeight - canvasBottomPadding + 20
-            );
-          });
-          canvasContext.stroke();
-
-        };
-
+      } else {
+        console.log('data invalid')
       };
 
-      // linha da esquerda e de baixo do gráfico
-      drawGraphicBorders();
+    });
 
-    };
-
-    buildCanvas();
-
-    //===========================================================================
-    // CHAMADAS NA API
-    //===========================================================================
+    // chamadas na api
 
     async function createTraining(training) {
 
@@ -279,9 +121,40 @@
         body: JSON.stringify(training)
       });
 
-      console.log(response);
+      refreshTrainings();
+
+      return response
 
     };
+
+    async function deleteTraining(training) {
+      let response = await fetch('http://localhost:5000/training/delete/' + training._id, {
+        method: 'DELETE'
+      });
+    }
+
+    async function fetchAll() {
+
+      const response = await fetch('http://localhost:5000/training/all');
+      return response.json()
+
+    };
+
+    async function refreshTrainings() {
+      await fetchAll().then(data => {
+        trainings = data.map(element => {
+          
+          // converte a date em uma formato mais amigável
+          element.date = dateToDayMonthYear(element.date);
+          return element;
+
+        });
+      });
+      buildTable(trainings);
+      buildCanvas(trainings);
+    }
+
+    refreshTrainings();
 
   </script>
 
