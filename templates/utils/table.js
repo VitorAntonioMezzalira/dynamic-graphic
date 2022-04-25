@@ -13,7 +13,7 @@ function buildTable(data) {
     row.appendChild(cell);
 
     cell = document.createElement('TD');
-    cellContent = document.createTextNode(element.duration);
+    cellContent = document.createTextNode(convertSecondsToHoursMinutesSeconds(element.duration));
     cell.appendChild(cellContent);
     row.appendChild(cell);
 

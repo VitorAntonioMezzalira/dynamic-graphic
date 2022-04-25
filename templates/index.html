@@ -6,23 +6,65 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+
+  <style>
+
+    *{
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .input-container{
+      padding: .75rem;
+    }
+    .input-container label{
+      display: inline-block;
+      width: 5rem;
+    }
+
+    .pace-container{
+      padding: .5rem;
+    }
+
+    .pace-container label{
+      display: inline-block;
+      width: 3.5rem;
+    }
+
+
+
+  </style>
+
 </head>
 
 <body>
 
   <form id="form">
 
-    <label for="_id">Código </label>
-    <input disabled id="_id" type="text">
+    <div class="input-container">
+      <label for="_id">Código </label>
+      <input disabled id="_id" type="text">
+    </div>
 
-    <label for="date">Dia: </label>
-    <input id="date" type="date">
+    <div class="input-container">
+      <label for="date">Dia: </label>
+      <input id="date" type="date">
+    </div>
 
-    <label for="duration">Duração: </label>
-    <input id="duration" type="number">
+    <div class="input-container">
+      <label for="duration">Duração: </label>
+      <input id="duration" type="time" step="1">
+    </div>
 
-    <label for="distance">Distância: </label>
-    <input id="distance" type="number">
+    <div class="input-container">
+      <label for="distance">Distância: </label>
+      <input id="distance" type="text">
+    </div>
+
+    <div class="input-container" id="paces">
+
+    </div>
 
     <label for="graphic-type">Tipo do Gráfico: </label>
     <select id="graphic-type">
@@ -54,6 +96,7 @@
     </table>
   </div>
 
+  <script src="./utils/timeConversions.js"></script>
   <script src="./utils/dateConversions.js"></script>
   <script src="./utils/canvas.js"></script>
   <script src="./utils/table.js"></script>
@@ -69,9 +112,9 @@
     const dateInput = document.getElementById('date');
     const durationInput = document.getElementById('duration');
     const distanceInput = document.getElementById('distance');
+    const pacesContainer = document.getElementById('paces');
 
     // events
-
     graphicTypeSelect.addEventListener('change', () => {
       graphicType = graphicTypeSelect.value;
       buildCanvas(trainings);
@@ -82,21 +125,63 @@
       buildCanvas(trainings);
     });
 
+    var distanceInteger;
+    distanceInput.addEventListener('change', () => {
+
+      distanceInteger = Math.floor((parseFloat(distanceInput.value)) / 1);
+      
+      for (let i = 0; i < distanceInteger; i++) {
+
+        let paceContainer = document.createElement('DIV');
+        paceContainer.setAttribute('class', 'pace-container');
+
+        let label = document.createElement('LABEL');
+        label.setAttribute('for', 'pace-' + i);
+        let labelContent = document.createTextNode('Pace ' + (i + 1) + ': ');
+        label.appendChild(labelContent);
+
+        let input = document.createElement('INPUT');
+        input.setAttribute('id', 'pace-' + i);
+        input.setAttribute('type', 'time');
+        input.setAttribute('step', '1');
+
+        paceContainer.appendChild(label);
+        paceContainer.appendChild(input);
+
+        pacesContainer.appendChild(paceContainer);
+
+      };
+
+    });
+
     form.addEventListener('submit', (e) => {
 
       e.preventDefault();
 
       if ((dateInput.value != '') && (durationInput.value != '') && (distanceInput.value != '')) {
 
-        refreshTrainings();
-
         let date =  (document.getElementById('date').value).split('-');
         date = new Date(date[0], date[1], date[2]);
 
+        let i = 0
+        let end = false;
+        paces = [];
+        while (!end) {
+          let paceInput = document.getElementById('pace-' + i);
+          if (paceInput == null) {
+            end = true; 
+          } else {
+            console.log(paceInput)
+            paces[i] = convertTimeToSeconds(paceInput.value);
+          };
+          i++
+        };
+        
         createTraining({
           date: date,
-          duration: parseInt(durationInput.value),
-          distance: parseInt(distanceInput.value)
+          duration:  convertTimeToSeconds(durationInput.value),
+          distance: parseFloat(distanceInput.value),
+          paces: paces
         });
       
         durationInput.value = '';
@@ -144,8 +229,9 @@
       await fetchAll().then(data => {
         trainings = data.map(element => {
           
-          // converte a date em uma formato mais amigável
-          element.date = dateToDayMonthYear(element.date);
+          // converte o date em uma formato mais amigável
+          element.date = convertDateToDayMonthYear(element.date);
+          //element.duration = convertSecondsToHoursMinutesSeconds(element.duration);
           return element;
 
         });

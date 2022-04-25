@@ -1,4 +1,4 @@
-function dateToDayMonthYear(date) {
+function convertDateToDayMonthYear(date) {
 
   date = new Date(date);
 
@@ -14,6 +14,6 @@ function dateToDayMonthYear(date) {
   
   let year = date.getFullYear();
 
-  return day + '-' + month + '-' + year;
+  return day + '/' + month + '/' + year;
 
 };

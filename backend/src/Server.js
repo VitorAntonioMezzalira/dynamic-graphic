@@ -16,7 +16,8 @@ app.post('/training/create', async (req, res) => {
   const training = new Training({
     date: req.body.date,
     duration: req.body.duration,
-    distance: req.body.distance
+    distance: req.body.distance,
+    paces: req.body.paces
   });
 
   await training.save();  
@@ -26,7 +27,10 @@ app.post('/training/create', async (req, res) => {
 
 app.get('/training/all', async (req, res) => {
 
-    const trainings = await Training.find({});
+    const trainings = await Training.find(
+      {}, 
+      ['_id', 'date', 'duration', 'distance', 'paces']
+    );
     res.send(trainings).status(200);
 
 })
