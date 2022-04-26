@@ -27,14 +27,31 @@ app.post('/training/create', async (req, res) => {
 
 app.get('/training/all', async (req, res) => {
 
-    const trainings = await Training.find(
+    const response = await Training.find(
       {}, 
       ['_id', 'date', 'duration', 'distance', 'paces']
     );
-    res.send(trainings).status(200);
+    res.send(response).status(200);
 
 })
 
+app.put('/training/update/', async (req, res) => {
+
+  console.log(req.body.paces)
+
+  const response = await Training.updateOne(
+    { _id: req.body._id },
+    {
+      date: req.body.date,
+      duration: req.body.duration,
+      distance: req.body.distance,
+      paces: req.body.paces
+    }
+  );
+
+  res.send(response).status(200)
+
+});
 
 app.delete('/training/delete/:_id', async (req, res) => {
 
@@ -44,6 +61,8 @@ app.delete('/training/delete/:_id', async (req, res) => {
   res.send(response).status(200);
 
 });
+
+
 
 Connection('mongodb://localhost:27017/run-stats');
 app.listen(5000, () => console.log('server is running at http://localhost:5000'))

@@ -8,32 +8,29 @@
   <title>Document</title>
 
   <style>
-
-    *{
+    * {
       padding: 0;
       margin: 0;
       box-sizing: border-box;
     }
 
-    .input-container{
+    .input-container {
       padding: .75rem;
     }
-    .input-container label{
+
+    .input-container label {
       display: inline-block;
       width: 5rem;
     }
 
-    .pace-container{
+    .pace-container {
       padding: .5rem;
     }
 
-    .pace-container label{
+    .pace-container label {
       display: inline-block;
       width: 3.5rem;
     }
-
-
-
   </style>
 
 </head>
@@ -89,7 +86,11 @@
   <div id="table-container">
     <table>
       <thead>
-        <tr><th>Data</th><th>Duração</th><th>Distância</th></tr>
+        <tr>
+          <th>Data</th>
+          <th>Duração</th>
+          <th>Distância</th>
+        </tr>
       </thead>
       <tbody id="table">
       </tbody>
@@ -98,6 +99,9 @@
 
   <script src="./utils/timeConversions.js"></script>
   <script src="./utils/dateConversions.js"></script>
+
+  <script src="./actions/trainingActions.js"></script>
+
   <script src="./utils/canvas.js"></script>
   <script src="./utils/table.js"></script>
   <script>
@@ -109,6 +113,7 @@
     const graphicTypeSelect = document.getElementById('graphic-type');
     const dataNameSelect = document.getElementById('data-name');
     const form = document.getElementById('form');
+    const _idInput = document.getElementById('_id');
     const dateInput = document.getElementById('date');
     const durationInput = document.getElementById('duration');
     const distanceInput = document.getElementById('distance');
@@ -128,8 +133,49 @@
     var distanceInteger;
     distanceInput.addEventListener('change', () => {
 
+      buildPacesInputs([]);
+
+    });
+
+    form.addEventListener('submit', (e) => {
+
+      e.preventDefault();
+
+      const training = collectTrainingFormularyData();
+
+      if (trainingAction != 'update') {
+
+        createTraining({
+          date: training.date,
+          duration: training.duration,
+          distance: training.distance,
+          paces: training.paces
+        })
+          .then(() => {
+            refreshTrainings();
+            clearTrainingFormularyData();
+          });
+
+      } else {
+
+        updateTraining(training)
+          .then(() => {
+            refreshTrainings();
+            clearTrainingFormularyData();
+          });
+
+        trainingAction = 'create';
+      };
+
+
+    });
+
+    function buildPacesInputs(paces) {
+
+      pacesContainer.innerHTML = '';
+
       distanceInteger = Math.floor((parseFloat(distanceInput.value)) / 1);
-      
+
       for (let i = 0; i < distanceInteger; i++) {
 
         let paceContainer = document.createElement('DIV');
@@ -144,6 +190,9 @@
         input.setAttribute('id', 'pace-' + i);
         input.setAttribute('type', 'time');
         input.setAttribute('step', '1');
+        input.setAttribute('class', 'pace-input');
+
+        input.value = convertSecondsToHoursMinutesSeconds(paces[i]);
 
         paceContainer.appendChild(label);
         paceContainer.appendChild(input);
@@ -152,83 +201,70 @@
 
       };
 
-    });
+    };
 
-    form.addEventListener('submit', (e) => {
+    function editTraining(training) {
 
-      e.preventDefault();
+      trainingAction = 'update';
+
+      _idInput.value = training._id;
+
+      durationInput.value = convertSecondsToHoursMinutesSeconds(training.duration);
+
+      const date = training.date.slice(6, 10) + '-' +
+        training.date.slice(3, 5) + '-' +
+        training.date.slice(0, 2)
+      dateInput.value = date;
+
+      distanceInput.value = training.distance;
+      buildPacesInputs(training.paces);
+
+    };
+
+    var trainingAction;
+
+    function clearTrainingFormularyData() {
+
+      _idInput.value = '';
+      durationInput.value = '';
+      distanceInput.value = '';
+      dateInput.value = '';
+      pacesContainer.innerHTML = '';
+
+    };
+
+    function collectTrainingFormularyData() {
 
       if ((dateInput.value != '') && (durationInput.value != '') && (distanceInput.value != '')) {
 
-        let date =  (document.getElementById('date').value).split('-');
-        date = new Date(date[0], date[1], date[2]);
+        const training = {};
+        training._id = _idInput.value;
+        training.duration = convertTimeToSeconds(durationInput.value);
+        training.distance = parseFloat((distanceInput.value).replace(',', '.'));
 
-        let i = 0
-        let end = false;
-        paces = [];
-        while (!end) {
-          let paceInput = document.getElementById('pace-' + i);
-          if (paceInput == null) {
-            end = true; 
-          } else {
-            console.log(paceInput)
-            paces[i] = convertTimeToSeconds(paceInput.value);
-          };
-          i++
+        // date
+        training.date = (document.getElementById('date').value).split('-');
+        training.date = new Date(date[0], date[1], date[2]);
+
+        // paces
+        training.paces = [];
+        const pacesInputs = document.getElementsByClassName('pace-input');
+        for (let i = 0; i < pacesInputs.length; i++) {
+          training.paces.push(convertTimeToSeconds(pacesInputs[i].value));
         };
-        
-        createTraining({
-          date: date,
-          duration:  convertTimeToSeconds(durationInput.value),
-          distance: parseFloat(distanceInput.value),
-          paces: paces
-        });
-      
-        durationInput.value = '';
-        distanceInput.value = '';
-        dateInput.value = '';
 
       } else {
-        console.log('data invalid')
+        console.log('data invalid');
       };
 
-    });
+      return training;
 
-    // chamadas na api
-
-    async function createTraining(training) {
-
-      const response = await fetch('http://localhost:5000/training/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type' : 'application/json'
-        },
-        body: JSON.stringify(training)
-      });
-
-      refreshTrainings();
-
-      return response
-
-    };
-
-    async function deleteTraining(training) {
-      let response = await fetch('http://localhost:5000/training/delete/' + training._id, {
-        method: 'DELETE'
-      });
     }
-
-    async function fetchAll() {
-
-      const response = await fetch('http://localhost:5000/training/all');
-      return response.json()
-
-    };
 
     async function refreshTrainings() {
       await fetchAll().then(data => {
         trainings = data.map(element => {
-          
+
           // converte o date em uma formato mais amigável
           element.date = convertDateToDayMonthYear(element.date);
           //element.duration = convertSecondsToHoursMinutesSeconds(element.duration);
@@ -236,9 +272,11 @@
 
         });
       });
+
       buildTable(trainings);
       buildCanvas(trainings);
-    }
+
+    };
 
     refreshTrainings();
 
