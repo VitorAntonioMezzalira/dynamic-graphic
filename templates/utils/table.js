@@ -37,8 +37,8 @@ function buildTable(data) {
     // update button
     cell = document.createElement('TD');
     cellButton = document.createElement('BUTTON');
-    cellButton.addEventListener('click', async () => {
-      await editTraining(element);
+    cellButton.addEventListener('click', () => {
+      editTraining(element);
     });
     cellContent = document.createTextNode('Update');
     cellButton.appendChild(cellContent);
@@ -48,8 +48,12 @@ function buildTable(data) {
     // view button
     cell = document.createElement('TD');
     cellButton = document.createElement('BUTTON');
-    cellButton.addEventListener('click', async () => {
-      await editTraining(element);
+    cellButton.addEventListener('click', () => {
+      buildCanvas(element.paces.map(pace => {
+        return {
+          content: pace
+        }
+      }));
     });
     cellContent = document.createTextNode('Comparar');
     cellButton.appendChild(cellContent);

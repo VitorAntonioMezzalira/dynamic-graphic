@@ -122,12 +122,12 @@
     // events
     graphicTypeSelect.addEventListener('change', () => {
       graphicType = graphicTypeSelect.value;
-      buildCanvas(trainings);
+      refreshDataDisplays(true, false);
     })
 
     dataNameSelect.addEventListener('change', () => {
       dataName = dataNameSelect.value;
-      buildCanvas(trainings);
+      refreshDataDisplays(true, false);
     });
 
     var distanceInteger;
@@ -166,7 +166,6 @@
 
         trainingAction = 'create';
       };
-
 
     });
 
@@ -273,10 +272,24 @@
         });
       });
 
-      buildTable(trainings);
-      buildCanvas(trainings);
+      refreshDataDisplays(true, true);
 
     };
+
+    function refreshDataDisplays(refreshCanva, refreshTable) {
+
+      let selectedContent = [];
+      for(let i = 0; i < trainings.length; i++) {
+
+        selectedContent[i] = {
+          content: trainings[i][dataName]
+        };
+
+      };
+
+      if (refreshTable) buildTable(trainings);
+      if (refreshCanva) buildCanvas(selectedContent);
+    }
 
     refreshTrainings();
 

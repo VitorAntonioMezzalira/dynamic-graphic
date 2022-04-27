@@ -15,14 +15,16 @@ var heightMultiplier; // multiplicador da altura que os índices serão exibidos
 
 function calculateGraphic(data) {
 
+  console.log(data)
+
   distanceBetween = graphicWidth / data.length;
 
   width = (graphicWidth / data.length) / 2;
 
   let maxBarHeight = 0;
   data.forEach((element) => {
-    if (element[dataName] > maxBarHeight) {
-      maxBarHeight = element[dataName];
+    if (element.content > maxBarHeight) {
+      maxBarHeight = element.content;
     };
   });
   heightMultiplier = 100 / ((100 * maxBarHeight) / graphicHeight);
@@ -115,19 +117,20 @@ function buildCanvas(data) {
   if (data.length > 0) {
 
     if (graphicType == 'bars') {
+
       // barras do gráfico
       data.forEach((element, id) => {
         drawGraphicBar(
           width,
-          element[dataName] * heightMultiplier,
+          element.content * heightMultiplier,
           distanceBetween * id
         );
         // Desenha informações dos índices do gráfico
-        drawGraphicInfoText(
-          element.date,
-          canvasLeftPadding + (distanceBetween * id) + width,
-          canvasHeight - canvasBottomPadding + 20
-        );
+        // drawGraphicInfoText(
+        //   element.legend,
+        //   canvasLeftPadding + (distanceBetween * id) + width,
+        //   canvasHeight - canvasBottomPadding + 20
+        // );
       });
 
     } else if (graphicType == 'lines') {
@@ -136,19 +139,19 @@ function buildCanvas(data) {
       canvasContext.beginPath();
       canvasContext.moveTo(
         canvasLeftPadding + (distanceBetween * 0) + width,
-        canvasHeight - canvasBottomPadding - (data[0][dataName] * heightMultiplier));
-      data.forEach((training, id) => {
+        canvasHeight - canvasBottomPadding - (data[0].content * heightMultiplier));
+      data.forEach((element, id) => {
         drawGraphicLine(
           width,
-          training[dataName] * heightMultiplier,
+          element.content * heightMultiplier,
           distanceBetween * id
         );
         // Desenha informações dos índices do gráfico
-        drawGraphicInfoText(
-          training.date,
-          canvasLeftPadding + (distanceBetween * id) + width,
-          canvasHeight - canvasBottomPadding + 20
-        );
+        // drawGraphicInfoText(
+        //   element.legend,
+        //   canvasLeftPadding + (distanceBetween * id) + width,
+        //   canvasHeight - canvasBottomPadding + 20
+        // );
       });
       canvasContext.stroke();
 
