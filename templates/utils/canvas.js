@@ -1,7 +1,7 @@
-const canvasWidth =  750; // largura do canva
+const canvasWidth = 750; // largura do canva
 const canvasHeight = 300; // altura do canva
 
-const canvasTopPadding = 20; // margem interna superior do canva
+const canvasTopPadding = 20;
 const canvasBottomPadding = 40; // margem interna inferior do canva
 const canvasLeftPadding = 40; // margem interna esquerda do canva
 const canvasRightPadding = 20; // margem interna direita do canva
@@ -14,8 +14,6 @@ var width;  // largura dos índices do gráfico (se forem barras)
 var heightMultiplier; // multiplicador da altura que os índices serão exibidos
 
 function calculateGraphic(data) {
-
-  console.log(data)
 
   distanceBetween = graphicWidth / data.length;
 
@@ -45,15 +43,15 @@ function drawCanvas() {
 function drawGraphicBorders() {
   canvasContext.beginPath();
   canvasContext.moveTo(
-    canvasLeftPadding, 
+    canvasLeftPadding,
     canvasTopPadding
   );
   canvasContext.lineTo(
-    canvasLeftPadding, 
+    canvasLeftPadding,
     canvasHeight - canvasBottomPadding
   );
   canvasContext.lineTo(
-    canvasLeftPadding + graphicWidth, 
+    canvasLeftPadding + graphicWidth,
     canvasTopPadding + graphicHeight
   );
   canvasContext.stroke();
@@ -65,14 +63,14 @@ function drawHorizontalLines(lineWidth, a) {
   for (let i = lineWidth; i < graphicWidth; i += (lineWidth * 2)) {
     canvasContext.beginPath();
     canvasContext.moveTo(
-      canvasLeftPadding + i, 
+      canvasLeftPadding + i,
       canvasHeight - canvasBottomPadding - a
     );
     canvasContext.lineTo(
-      canvasLeftPadding + i + lineWidth, 
+      canvasLeftPadding + i + lineWidth,
       canvasHeight - canvasBottomPadding - a
     );
-    canvasContext.stroke(); 
+    canvasContext.stroke();
   }
 
   // esconde pedaços das linhas que tenham passado a largura do gráfico

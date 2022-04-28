@@ -173,7 +173,7 @@
 
       pacesContainer.innerHTML = '';
 
-      distanceInteger = Math.floor((parseFloat(distanceInput.value)) / 1);
+      distanceInteger = Math.ceil((parseFloat(distanceInput.value)) / 1);
 
       for (let i = 0; i < distanceInteger; i++) {
 
@@ -235,14 +235,15 @@
     function collectTrainingFormularyData() {
 
       if ((dateInput.value != '') && (durationInput.value != '') && (distanceInput.value != '')) {
-
+        
         const training = {};
+
         training._id = _idInput.value;
         training.duration = convertTimeToSeconds(durationInput.value);
         training.distance = parseFloat((distanceInput.value).replace(',', '.'));
 
         // date
-        training.date = (document.getElementById('date').value).split('-');
+        const date = (document.getElementById('date').value).split('-');
         training.date = new Date(date[0], date[1], date[2]);
 
         // paces
@@ -252,13 +253,15 @@
           training.paces.push(convertTimeToSeconds(pacesInputs[i].value));
         };
 
+        return training;
+
       } else {
         console.log('data invalid');
       };
 
-      return training;
+      
 
-    }
+    };
 
     async function refreshTrainings() {
       await fetchAll().then(data => {

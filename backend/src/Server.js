@@ -37,8 +37,6 @@ app.get('/training/all', async (req, res) => {
 
 app.put('/training/update/', async (req, res) => {
 
-  console.log(req.body.paces)
-
   const response = await Training.updateOne(
     { _id: req.body._id },
     {
@@ -55,14 +53,10 @@ app.put('/training/update/', async (req, res) => {
 
 app.delete('/training/delete/:_id', async (req, res) => {
 
-  console.log(req.params)
-
   const response = await Training.findByIdAndDelete({ _id: req.params._id });
   res.send(response).status(200);
 
 });
-
-
 
 Connection('mongodb://localhost:27017/run-stats');
 app.listen(5000, () => console.log('server is running at http://localhost:5000'))
