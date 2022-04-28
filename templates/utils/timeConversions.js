@@ -1,8 +1,12 @@
 function convertTimeToSeconds(time) {
 
-  const [hours, minutes, seconds] = time.split(':').map(Number);
-  const timeInSeconds = (hours * 60 * 60) + (minutes * 60) + seconds;
-  return timeInSeconds;
+  if (time != undefined) {
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+    const timeInSeconds = (hours * 60 * 60) + (minutes * 60) + seconds;
+    return timeInSeconds;
+  } else {
+    return 0
+  }
 
 };
 

@@ -6,93 +6,99 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-
-  <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
-
-    .input-container {
-      padding: .75rem;
-    }
-
-    .input-container label {
-      display: inline-block;
-      width: 5rem;
-    }
-
-    .pace-container {
-      padding: .5rem;
-    }
-
-    .pace-container label {
-      display: inline-block;
-      width: 3.5rem;
-    }
-  </style>
-
+  <link rel="stylesheet" href="./styles/phone.css">
 </head>
 
 <body>
 
-  <form id="form">
+  <div>
 
-    <div class="input-container">
-      <label for="_id">Código </label>
-      <input disabled id="_id" type="text">
-    </div>
+    <header class="header">
+      <h2>Run Stats</h2>
+      <div class="navegation">&#9776;</div>
+    </header>
 
-    <div class="input-container">
-      <label for="date">Dia: </label>
-      <input id="date" type="date">
-    </div>
+    <main class="main">
 
-    <div class="input-container">
-      <label for="duration">Duração: </label>
-      <input id="duration" type="time" step="1">
-    </div>
+      <form id="form">
 
-    <div class="input-container">
-      <label for="distance">Distância: </label>
-      <input id="distance" type="text">
-    </div>
+        <h3>Cadastro de Corrida</h3>
 
-    <div class="input-container" id="paces">
+        <div class="input-container">
+          <label for="_id">Código</label>
+          <input disabled id="_id" type="text">
+        </div>
 
-    </div>
+        <div class="input-container">
+          <label for="date">Dia</label>
+          <input id="date" type="date">
+        </div>
 
-    <label for="graphic-type">Tipo do Gráfico: </label>
-    <select id="graphic-type">
-      <option value="bars">Barras</option>
-      <option value="lines">Linhas</option>
-    </select>
+        <div class="input-container">
+          <label for="duration">Duração</label>
+          <input id="duration" type="time" step="1">
+        </div>
 
-    <label for="data-name">Dado a ser exibido: </label>
-    <select id="data-name">
-      <option value="duration">Duração</option>
-      <option value="distance">Distância</option>
-    </select>
+        <div class="input-container">
+          <label for="distance">Distância</label>
+          <input id="distance" type="text">
+        </div>
 
-    <button>Salvar</button>
+        <div id="paces-container" class="hidden">
+          <div class="space-between"></div>
 
-  </form>
+          <h4>Tempos por kilômetro</h4>
 
-  <div id="canvas-container"></div>
+          <div id="paces">
 
-  <div id="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Duração</th>
-          <th>Distância</th>
-        </tr>
-      </thead>
-      <tbody id="table">
-      </tbody>
-    </table>
+          </div>
+
+        </div>
+
+        <div class="input-container">
+          <button id="cancel">Cancelar</button>
+        </div>
+        <div class="input-container">
+          <button id="save">Salvar</button>
+        </div>
+
+      </form>
+
+      <div class="space-between"></div>
+
+      <!-- <label for="graphic-type">Tipo do Gráfico: </label>
+      <select id="graphic-type">
+        <option value="bars">Barras</option>
+        <option value="lines">Linhas</option>
+      </select>
+
+      <label for="data-name">Dado a ser exibido: </label>
+      <select id="data-name">
+        <option value="duration">Duração</option>
+        <option value="distance">Distância</option>
+      </select> -->
+
+      <div id="canvas-container"></div>
+
+      <div class="space-between"></div>
+
+      <div id="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Duração</th>
+              <th>Distância</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table">
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+
   </div>
 
   <script src="./utils/timeConversions.js"></script>
@@ -103,6 +109,7 @@
   <script src="./classes/canvasClass.js"></script>
 
   <script src="./utils/table.js"></script>
+  <script src="./utils/paces.js"></script>
   <script>
 
     var trainings = [];
@@ -116,40 +123,45 @@
     const dateInput = document.getElementById('date');
     const durationInput = document.getElementById('duration');
     const distanceInput = document.getElementById('distance');
-    const pacesContainer = document.getElementById('paces');
+
+    const saveButton = document.getElementById('save');
+    const cancelButton = document.getElementById('cancel');
 
     var selectedContent = [];
 
     const canvas = new GraphicCanvas(
       'canvas-container',
-      750,
-      300,
+      document.getElementById('canvas-container').clientWidth,
+      200,
       20,
       20,
-      40,
-      40,
+      20,
+      20,
       selectedContent
     )
 
     // events
-    graphicTypeSelect.addEventListener('change', () => {
-      graphicType = graphicTypeSelect.value;
-      refreshDataDisplays(true, false);
-    })
+    // graphicTypeSelect.addEventListener('change', () => {
+    //   graphicType = graphicTypeSelect.value;
+    //   refreshDataDisplays(true, false);
+    // })
 
-    dataNameSelect.addEventListener('change', () => {
-      dataName = dataNameSelect.value;
-      refreshDataDisplays(true, false);
-    });
+    // dataNameSelect.addEventListener('change', () => {
+    //   dataName = dataNameSelect.value;
+    //   refreshDataDisplays(true, false);
+    // });
 
     var distanceInteger;
-    distanceInput.addEventListener('change', () => {
+    distanceInput.addEventListener('input', () => {
 
-      buildPacesInputs([]);
+      buildPacesInputs(
+        [], 
+        Math.ceil((parseFloat((distanceInput.value).replace(',', '.'))) / 1)
+      );
 
     });
 
-    form.addEventListener('submit', (e) => {
+    saveButton.addEventListener('click', (e) => {
 
       e.preventDefault();
 
@@ -179,40 +191,18 @@
         trainingAction = 'create';
       };
 
+      pacesContainerElement.classList.add('hidden');
+
     });
 
-    function buildPacesInputs(paces) {
+    cancelButton.addEventListener('click', (e) => {
 
-      pacesContainer.innerHTML = '';
+      pacesContainerElement.classList.add('hidden');
+      e.preventDefault();
+      trainingAction = 'create';
+      clearTrainingFormularyData();
 
-      distanceInteger = Math.ceil((parseFloat(distanceInput.value)) / 1);
-
-      for (let i = 0; i < distanceInteger; i++) {
-
-        let paceContainer = document.createElement('DIV');
-        paceContainer.setAttribute('class', 'pace-container');
-
-        let label = document.createElement('LABEL');
-        label.setAttribute('for', 'pace-' + i);
-        let labelContent = document.createTextNode('Pace ' + (i + 1) + ': ');
-        label.appendChild(labelContent);
-
-        let input = document.createElement('INPUT');
-        input.setAttribute('id', 'pace-' + i);
-        input.setAttribute('type', 'time');
-        input.setAttribute('step', '1');
-        input.setAttribute('class', 'pace-input');
-
-        input.value = convertSecondsToHoursMinutesSeconds(paces[i]);
-
-        paceContainer.appendChild(label);
-        paceContainer.appendChild(input);
-
-        pacesContainer.appendChild(paceContainer);
-
-      };
-
-    };
+    });
 
     function editTraining(training) {
 
@@ -228,7 +218,10 @@
       dateInput.value = date;
 
       distanceInput.value = training.distance;
-      buildPacesInputs(training.paces);
+      buildPacesInputs(
+        training.paces,
+        Math.ceil((parseFloat((distanceInput.value).replace(',', '.'))) / 1)
+      );
 
     };
 
@@ -271,8 +264,6 @@
         console.log('data invalid');
       };
 
-
-
     };
 
     async function refreshTrainings() {
@@ -304,7 +295,7 @@
       if (refreshTable) buildTable(trainings);
       if (refreshCanva) {
         canvas.data = selectedContent;
-        canvas.buildCanvas(); 
+        canvas.buildCanvas();
       }
     }
 
