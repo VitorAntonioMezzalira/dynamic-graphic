@@ -3,10 +3,10 @@ class GraphicCanvas {
     canvasContainerId,
     width,
     height,
-    TopPadding,
-    RightPadding,
-    BottomPadding,
-    LeftPadding,
+    topPadding,
+    rightPadding,
+    bottomPadding,
+    leftPadding,
     data
   ) {
 
@@ -16,13 +16,13 @@ class GraphicCanvas {
     this.width = width; // largura do canvas
     this.height = height; // altura do canvas
 
-    this.TopPadding = TopPadding; // margem interna SUPERIOR do canva
-    this.RightPadding = RightPadding; // margem interna DIREITA do canva
-    this.BottomPadding = BottomPadding; // margem interna INFERIOR do canva
-    this.LeftPadding = LeftPadding; // margem interna ESQUERDA do canva
+    this.topPadding = topPadding; // margem interna SUPERIOR do canva
+    this.rightPadding = rightPadding; // margem interna DIREITA do canva
+    this.bottomPadding = bottomPadding; // margem interna INFERIOR do canva
+    this.leftPadding = leftPadding; // margem interna ESQUERDA do canva
 
-    this.graphicWidth = this.width - (this.LeftPadding + this.RightPadding); // largura do gráfico
-    this.graphicHeight = this.height - (this.TopPadding + this.BottomPadding); // altura do gráfico
+    this.graphicWidth = this.width - (this.leftPadding + this.rightPadding); // largura do gráfico
+    this.graphicHeight = this.height - (this.topPadding + this.bottomPadding); // altura do gráfico
 
     this.statsDistanceBetween; // distância entre um índice e outro do gráfico
     this.statsWidth;  // largura dos índices do gráfico (se forem barras)
@@ -30,18 +30,18 @@ class GraphicCanvas {
 
     this.data = data;
 
-    this.canvasElement.width = this.Width;
-    this.canvasElement.height = this.Height;
-
     this.canvasContext = this.canvasElement.getContext('2d');
 
-    document.getElementById(canvasContainerId).appendChild(this.canvasElement);
+    this.canvasElement.width = this.width;
+    this.canvasElement.height = this.height;
+
+    this.buildCanvas();
 
   }
 
   calculateGraphic() {
 
-    this.distanceBetween = this.graphicWidth / this.data.length;
+    this.statsDistanceBetween = this.graphicWidth / this.data.length;
 
     this.statsWidth = (this.graphicWidth / this.data.length) / 2;
 
@@ -51,7 +51,7 @@ class GraphicCanvas {
         maxBarHeight = element.content;
       };
     });
-    this.heightMultiplier = 100 / ((100 * maxBarHeight) / this.graphicHeight);
+    this.statsHeightMultiplier = 100 / ((100 * maxBarHeight) / this.graphicHeight);
   }
 
   // funções para desenho do gráfico
@@ -63,16 +63,16 @@ class GraphicCanvas {
   drawGraphicBorders() {
     this.canvasContext.beginPath();
     this.canvasContext.moveTo(
-      this.LeftPadding,
-      this.TopPadding
+      this.leftPadding,
+      this.topPadding
     );
     this.canvasContext.lineTo(
-      this.LeftPadding,
-      this.Height - this.BottomPadding
+      this.leftPadding,
+      this.height - this.bottomPadding
     );
     this.canvasContext.lineTo(
-      this.LeftPadding + this.graphicWidth,
-      this.TopPadding + this.graphicHeight
+      this.leftPadding + this.graphicWidth,
+      this.topPadding + this.graphicHeight
     );
     this.canvasContext.stroke();
   };
@@ -83,31 +83,31 @@ class GraphicCanvas {
     for (let i = lineWidth; i < this.graphicWidth; i += (lineWidth * 2)) {
       this.canvasContext.beginPath();
       this.canvasContext.moveTo(
-        this.LeftPadding + i,
-        this.Height - this.BottomPadding - a
+        this.leftPadding + i,
+        this.height - this.bottomPadding - a
       );
       this.canvasContext.lineTo(
-        this.LeftPadding + i + lineWidth,
-        this.Height - this.BottomPadding - a
+        this.leftPadding + i + lineWidth,
+        this.height - this.bottomPadding - a
       );
       this.canvasContext.stroke();
     }
 
     // esconde pedaços das linhas que tenham passado a largura do gráfico
     this.canvasContext.fillStyle = '#eeeeee';
-    this.canvasContext.fillRect(this.LeftPadding + this.graphicWidth, 0, this.Width, this.Height);
+    this.canvasContext.fillRect(this.leftPadding + this.graphicWidth, 0, this.Width, this.Height);
 
   }
 
   drawGraphicBar(height, columnMargin) {
-    let barTopStart = this.Height - this.BottomPadding - height;
-    let barLeftStart = this.LeftPadding + columnMargin + (this.statsWidth / 2);
+    let barTopStart = this.height - this.bottomPadding - height;
+    let barLeftStart = this.leftPadding + columnMargin + (this.statsWidth / 2);
     this.canvasContext.fillStyle = '#66dd66';
     this.canvasContext.fillRect(barLeftStart, barTopStart, this.statsWidth, height);
   };
 
   drawGraphicLine(height, columnMargin) {
-    let barTopStart = this.height - canvasBottomPadding - height;
+    let barTopStart = this.height - this.bottomPadding - height;
     let barLeftStart = this.leftPadding + columnMargin + this.statsWidth;
     this.canvasContext.lineTo(barLeftStart, barTopStart);
   };
@@ -139,14 +139,14 @@ class GraphicCanvas {
         // barras do gráfico
         this.data.forEach((element, id) => {
           this.drawGraphicBar(
-            element.content * this.heightMultiplier,
-            this.distanceBetween * id
+            element.content * this.statsHeightMultiplier,
+            this.statsDistanceBetween * id
           );
           // Desenha informações dos índices do gráfico
           // drawGraphicInfoText(
           //   element.legend,
-          //   canvasLeftPadding + (distanceBetween * id) + width,
-          //   canvasHeight - canvasBottomPadding + 20
+          //   canvasleftPadding + (distanceBetween * id) + width,
+          //   canvasHeight - canvasbottomPadding + 20
           // );
         });
 
@@ -155,18 +155,18 @@ class GraphicCanvas {
         // Linhas do gráfico
         this.canvasContext.beginPath();
         this.canvasContext.moveTo(
-          this.canvasLeftPadding + (distanceBetween * 0) + this.statsWidth,
-          this.canvasHeight - this.BottomPadding - (this.data[0].content * this.heightMultiplier));
+          this.leftPadding + (this.statsDistanceBetween * 0) + this.statsWidth,
+          this.height - this.bottomPadding - (this.data[0].content * this.statsHeightMultiplier));
         this.data.forEach((element, id) => {
           this.drawGraphicLine(
-            element.content * this.heightMultiplier,
-            distanceBetween * id
+            element.content * this.statsHeightMultiplier,
+            this.statsDistanceBetween * id
           );
           // Desenha informações dos índices do gráfico
           // drawGraphicInfoText(
           //   element.legend,
-          //   canvasLeftPadding + (distanceBetween * id) + width,
-          //   canvasHeight - canvasBottomPadding + 20
+          //   canvasleftPadding + (distanceBetween * id) + width,
+          //   canvasHeight - canvasbottomPadding + 20
           // );
         });
         this.canvasContext.stroke();

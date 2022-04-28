@@ -6,93 +6,128 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-
-  <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
-
-    .input-container {
-      padding: .75rem;
-    }
-
-    .input-container label {
-      display: inline-block;
-      width: 5rem;
-    }
-
-    .pace-container {
-      padding: .5rem;
-    }
-
-    .pace-container label {
-      display: inline-block;
-      width: 3.5rem;
-    }
-  </style>
-
+  <link rel="stylesheet" href="./styles/phone.css">
 </head>
 
 <body>
 
-  <form id="form">
+  <div>
 
-    <div class="input-container">
-      <label for="_id">Código </label>
-      <input disabled id="_id" type="text">
-    </div>
+    <header class="header">
+      <h2>Run Stats</h2>
+      <div class="navegation">&#9776;</div>
+    </header>
 
-    <div class="input-container">
-      <label for="date">Dia: </label>
-      <input id="date" type="date">
-    </div>
+    <main class="main">
 
-    <div class="input-container">
-      <label for="duration">Duração: </label>
-      <input id="duration" type="time" step="1">
-    </div>
+      <form id="form">
 
-    <div class="input-container">
-      <label for="distance">Distância: </label>
-      <input id="distance" type="text">
-    </div>
+        <h3>Cadastro de Corrida</h3>
 
-    <div class="input-container" id="paces">
+        <div class="form-container">
 
-    </div>
+          <div class="sub-form-container">
+            <label for="_id">Código</label>
+            <input disabled id="_id" type="text">
+          </div>
 
-    <label for="graphic-type">Tipo do Gráfico: </label>
-    <select id="graphic-type">
-      <option value="bars">Barras</option>
-      <option value="lines">Linhas</option>
-    </select>
+          <div class="sub-form-container">
+            <label for="date">Dia</label>
+            <input id="date" type="date">
+          </div>
 
-    <label for="data-name">Dado a ser exibido: </label>
-    <select id="data-name">
-      <option value="duration">Duração</option>
-      <option value="distance">Distância</option>
-    </select>
+        </div>
 
-    <button>Salvar</button>
+        <div class="form-container">
 
-  </form>
+          <div class="sub-form-container">
+            <label for="duration">Duração</label>
+            <input id="duration" type="time" step="1">
+          </div>
 
-  <div id="canvas-container"></div>
+          <div class="sub-form-container">
+            <label for="distance">Distância</label>
+            <input id="distance" type="text">
+          </div>
 
-  <div id="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Duração</th>
-          <th>Distância</th>
-        </tr>
-      </thead>
-      <tbody id="table">
-      </tbody>
-    </table>
+        </div>
+
+        <div id="paces">
+
+          <h4>Tempos por kilômetro</h4>
+
+          <div class="form-container">
+            <div class="sub-form-container">
+              <label>km 1</label>
+              <input type="time" step="1">
+            </div>
+
+            <div class="sub-form-container">
+              <label>km 2</label>
+              <input type="time" step="1">
+            </div>
+          </div>
+
+          <div class="form-container">
+            <div class="sub-form-container">
+              <label>km 3</label>
+              <input type="time" step="1">
+            </div>
+
+            <div class="sub-form-container">
+              <label>km 4</label>
+              <input type="time" step="1">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- <label for="graphic-type">Tipo do Gráfico: </label>
+        <select id="graphic-type">
+          <option value="bars">Barras</option>
+          <option value="lines">Linhas</option>
+        </select>
+    
+        <label for="data-name">Dado a ser exibido: </label>
+        <select id="data-name">
+          <option value="duration">Duração</option>
+          <option value="distance">Distância</option>
+        </select> -->
+
+        <div class="form-container">
+          <div class="sub-form-container">
+            <button id="cancel">Cancelar</button>
+          </div>
+          <div class="sub-form-container">
+            <button id="save">Salvar</button>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="space-between"></div>
+
+      <div id="canvas-container"></div>
+
+      <div class="space-between"></div>
+
+      <div id="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Duração</th>
+              <th>Distância</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table">
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+
   </div>
 
   <script src="./utils/timeConversions.js"></script>
@@ -122,8 +157,8 @@
 
     const canvas = new GraphicCanvas(
       'canvas-container',
-      750,
-      300,
+      document.getElementById('canvas-container').clientWidth,
+      200,
       20,
       20,
       40,
@@ -132,15 +167,15 @@
     )
 
     // events
-    graphicTypeSelect.addEventListener('change', () => {
-      graphicType = graphicTypeSelect.value;
-      refreshDataDisplays(true, false);
-    })
+    // graphicTypeSelect.addEventListener('change', () => {
+    //   graphicType = graphicTypeSelect.value;
+    //   refreshDataDisplays(true, false);
+    // })
 
-    dataNameSelect.addEventListener('change', () => {
-      dataName = dataNameSelect.value;
-      refreshDataDisplays(true, false);
-    });
+    // dataNameSelect.addEventListener('change', () => {
+    //   dataName = dataNameSelect.value;
+    //   refreshDataDisplays(true, false);
+    // });
 
     var distanceInteger;
     distanceInput.addEventListener('change', () => {

@@ -29,13 +29,11 @@ function buildTable(data) {
       await deleteTraining(element);
       refreshTrainings();
     });
-    cellContent = document.createTextNode('Delete');
+    cellContent = document.createTextNode(' x ');
     cellButton.appendChild(cellContent);
     cell.appendChild(cellButton);
-    row.appendChild(cell);
 
     // update button
-    cell = document.createElement('TD');
     cellButton = document.createElement('BUTTON');
     cellButton.addEventListener('click', () => {
       editTraining(element);
@@ -43,19 +41,18 @@ function buildTable(data) {
     cellContent = document.createTextNode('Update');
     cellButton.appendChild(cellContent);
     cell.appendChild(cellButton);
-    row.appendChild(cell);
 
     // view button
-    cell = document.createElement('TD');
     cellButton = document.createElement('BUTTON');
     cellButton.addEventListener('click', () => {
-      buildCanvas(element.paces.map(pace => {
+      canvas.data = element.paces.map(pace => {
         return {
           content: pace
         }
-      }));
+      })
+      canvas.buildCanvas();
     });
-    cellContent = document.createTextNode('Comparar');
+    cellContent = document.createTextNode('paces');
     cellButton.appendChild(cellContent);
     cell.appendChild(cellButton);
     row.appendChild(cell);
