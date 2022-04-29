@@ -7,6 +7,14 @@ async function fetchAll() {
 
 };
 
+async function fetchOne(_id) {
+
+  const response = await fetch('http://localhost:5000/training/one/' + _id);
+
+  return response.json();
+
+}
+
 // POST
 async function createTraining(training) {
 

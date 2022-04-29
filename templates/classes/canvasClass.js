@@ -1,7 +1,6 @@
 class GraphicCanvas {
   constructor(
     canvasContainerId,
-    width,
     height,
     topPadding,
     rightPadding,
@@ -13,16 +12,12 @@ class GraphicCanvas {
     this.canvasContainerId = canvasContainerId;
     this.canvasElement = document.createElement('CANVAS');
 
-    this.width = width; // largura do canvas
     this.height = height; // altura do canvas
 
     this.topPadding = topPadding; // margem interna SUPERIOR do canva
     this.rightPadding = rightPadding; // margem interna DIREITA do canva
     this.bottomPadding = bottomPadding; // margem interna INFERIOR do canva
     this.leftPadding = leftPadding; // margem interna ESQUERDA do canva
-
-    this.graphicWidth = this.width - (this.leftPadding + this.rightPadding); // largura do gráfico
-    this.graphicHeight = this.height - (this.topPadding + this.bottomPadding); // altura do gráfico
 
     this.statsDistanceBetween; // distância entre um índice e outro do gráfico
     this.statsWidth;  // largura dos índices do gráfico (se forem barras)
@@ -32,14 +27,19 @@ class GraphicCanvas {
 
     this.canvasContext = this.canvasElement.getContext('2d');
 
-    this.canvasElement.width = this.width;
-    this.canvasElement.height = this.height;
-
     this.buildCanvas();
 
   }
 
   calculateGraphic() {
+
+    this.width = document.getElementById(this.canvasContainerId).clientWidth; // largura do canvas
+
+    this.graphicWidth = this.width - (this.leftPadding + this.rightPadding); // largura do gráfico
+    this.graphicHeight = this.height - (this.topPadding + this.bottomPadding); // altura do gráfico
+    
+    this.canvasElement.width = this.width;
+    this.canvasElement.height = this.height;
 
     this.statsDistanceBetween = this.graphicWidth / this.data.length;
 

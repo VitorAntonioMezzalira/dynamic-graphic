@@ -35,6 +35,16 @@ app.get('/training/all', async (req, res) => {
 
 })
 
+app.get('/training/one/:_id', async (req, res) => {
+
+  const response = await Training.findOne(
+    { _id: req.params._id}, 
+    ['_id', 'date', 'duration', 'distance', 'paces']
+  );
+  res.send(response).status(200);
+
+})
+
 app.put('/training/update/', async (req, res) => {
 
   const response = await Training.updateOne(

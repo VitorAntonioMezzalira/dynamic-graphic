@@ -83,18 +83,7 @@
       <div class="space-between"></div>
 
       <div id="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Duração</th>
-              <th>Distância</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="table">
-          </tbody>
-        </table>
+        <table id="table-orderer"></table>
       </div>
 
     </main>
@@ -106,9 +95,10 @@
 
   <script src="./actions/trainingActions.js"></script>
 
+  <script src="./classes/tableClass.js"></script>
   <script src="./classes/canvasClass.js"></script>
 
-  <script src="./utils/table.js"></script>
+  <!-- <script src="./utils/table.js"></script> -->
   <script src="./utils/paces.js"></script>
   <script>
 
@@ -131,14 +121,19 @@
 
     const canvas = new GraphicCanvas(
       'canvas-container',
-      document.getElementById('canvas-container').clientWidth,
       200,
       20,
       20,
       20,
       20,
-      selectedContent
+      []
     )
+
+    const table = new Table(
+      {},
+      document.getElementById("table-orderer"),
+    );
+
 
     // events
     // graphicTypeSelect.addEventListener('change', () => {
@@ -152,10 +147,15 @@
     // });
 
     var distanceInteger;
+
+    window.addEventListener('resize', () => {
+      canvas.buildCanvas();
+    })
+
     distanceInput.addEventListener('input', () => {
 
       buildPacesInputs(
-        [], 
+        [],
         Math.ceil((parseFloat((distanceInput.value).replace(',', '.'))) / 1)
       );
 
@@ -204,24 +204,25 @@
 
     });
 
-    function editTraining(training) {
+    function editTraining(_id) {
 
       trainingAction = 'update';
 
-      _idInput.value = training._id;
+      fetchOne(_id).then(training => {
 
-      durationInput.value = convertSecondsToHoursMinutesSeconds(training.duration);
+        _idInput.value = training._id;
 
-      const date = training.date.slice(6, 10) + '-' +
-        training.date.slice(3, 5) + '-' +
-        training.date.slice(0, 2)
-      dateInput.value = date;
+        durationInput.value = convertSecondsToHoursMinutesSeconds(training.duration);
 
-      distanceInput.value = training.distance;
-      buildPacesInputs(
-        training.paces,
-        Math.ceil((parseFloat((distanceInput.value).replace(',', '.'))) / 1)
-      );
+        dateInput.value = convertDateToInputDate(training.date)
+
+        distanceInput.value = training.distance;
+        buildPacesInputs(
+          training.paces,
+          Math.ceil((parseFloat((distanceInput.value).replace(',', '.'))) / 1)
+        );
+
+      });
 
     };
 
@@ -292,7 +293,26 @@
 
       };
 
-      if (refreshTable) buildTable(trainings);
+      if (refreshTable) {
+        table.data = {
+          columnsNames: [
+            { name: '_id', type: 'key' },
+            { name: 'distance', type: 'number' },
+            { name: 'duration', type: 'number' },
+            { name: 'date', type: 'string' },
+            { name: 'actions', type: 'header' }
+          ],
+          content: trainings.map(element => {
+            return {
+              _id: element._id,
+              distance: element.distance,
+              duration: element.duration,
+              date: element.date
+            };
+          })
+        }
+        table.generateTable();
+      };
       if (refreshCanva) {
         canvas.data = selectedContent;
         canvas.buildCanvas();

@@ -152,6 +152,46 @@ button {
   width: 48%;
 }
 
+
+
+#table-orderer {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#table-orderer td,
+#table-orderer th{
+  border-right: 1px solid #000;
+  padding: .25rem .5rem;
+}
+#table-orderer tr{
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-left: 1px solid #000;
+}
+
+
+#table-orderer .actions-cell-container{
+  display: flex;
+}
+
+#table-orderer .actions-cell button{
+  width: 2rem;
+  height: 2rem;
+  border: none;
+}
+
+#table-orderer .actions-cell button.delete{
+  background-color: #FF7777;
+}
+#table-orderer .actions-cell button.update{
+  background-color: #ffff77;
+}
+#table-orderer .actions-cell button.view{
+  background-color: #7777ff;
+}
+
+
 .hidden{
   display: none !important;
 }
